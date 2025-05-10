@@ -52,7 +52,7 @@ function SkipCard({
           }`}
         />
         <Badge
-          className={`absolute top-4 right-4 rounded-full
+          className={`absolute top-3 right-3 rounded-full
               ${
                 isSelected
                   ? "bg-green-600 hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-600"
@@ -104,7 +104,7 @@ function SkipCard({
       </CardContent>
 
       {/* Footer - reduced padding */}
-      <CardFooter className="pt-0 pb-3 px-4">
+      <CardFooter className="pt-0 pb-3 px-3">
         <Button
           className={`w-full group rounded-full h-[42px] ${
             isSelected

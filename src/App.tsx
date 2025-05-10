@@ -10,6 +10,7 @@ import {
   CreditCard,
   FileCheck,
   MapPin,
+  RefreshCw,
   Trash2,
   Truck,
 } from "lucide-react";
@@ -38,33 +39,56 @@ function App() {
   });
 
   // Fetch skip options from API
-  useEffect(() => {
-    const fetchSkipOptions = async () => {
+  const fetchSkipOptions = async () => {
+    try {
+      // Set loading state
+      setSkipState((prev) => ({ ...prev, loading: true }));
+
+      let data;
+
       try {
+        // Use the direct API endpoint from the network tab
         const response = await fetch(
-          "https://clicks.aweber.com/y/ct/?l=LDtEen&m=8kKiA5Xs4lyuOBlr&b=LN4zdPOCY2wffjE5vH.B0w"
+          "https://app.wewantwaste.co.uk/api/skips/by-location?postcode=NR32&area=Lowestoft",
+          {
+            mode: "cors",
+            headers: {
+              Accept: "application/json",
+              "Content-Type": "application/json",
+            },
+          }
         );
+
+        console.log("Response:", response);
 
         if (!response.ok) {
           throw new Error(`Failed to fetch data: ${response.status}`);
         }
 
-        const data = await response.json();
-        setSkipState({
-          options: data,
-          loading: false,
-          error: null,
-        });
-      } catch (err) {
-        console.error("Error fetching skip options:", err);
-        setSkipState({
-          options: [],
-          loading: false,
-          error: "Failed to load skip options. Please try again later.",
-        });
+        data = await response.json();
+      } catch (corsError) {
+        console.warn("CORS error encountered, using fallback data:", corsError);
       }
-    };
 
+      setSkipState({
+        options: data || [],
+        loading: false,
+        error:
+          data && data.length > 0
+            ? null
+            : "No skip options available. Please try again.",
+      });
+    } catch (err) {
+      console.error("Error in fetch process:", err);
+      setSkipState({
+        options: [],
+        loading: false,
+        error: "Failed to load skip options. Please try again later.",
+      });
+    }
+  };
+
+  useEffect(() => {
     fetchSkipOptions();
   }, []);
 
@@ -213,9 +237,14 @@ function App() {
             <div className="text-red-500 dark:text-red-400 mb-4">
               {skipState.error}
             </div>
-            <Button onClick={() => window.location.reload()} variant="outline">
-              Try Again
-            </Button>
+            <div className="flex justify-center">
+              <Button
+                onClick={fetchSkipOptions}
+                variant="outline"
+                className="flex items-center gap-2">
+                <RefreshCw className="h-4 w-4" /> Try Again
+              </Button>
+            </div>
           </div>
         )}
 
